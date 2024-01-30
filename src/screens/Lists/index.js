@@ -19,7 +19,7 @@ const ListsScreen = props => {
   const [lists, setLists] =useState([]);
 
   useEffect(() => {
-    //const listener = navigation.addListener('focus', () => {
+    const listener = navigation.addListener('focus', () => {
       //declare empty array that will store results of SELECT
       let results = [];
       // declare transaction that will execute SELECT
@@ -60,8 +60,8 @@ const ListsScreen = props => {
           },
         )
       });
-    //});
-    //return listener;
+    });
+    return listener;
   });
 
   return (
