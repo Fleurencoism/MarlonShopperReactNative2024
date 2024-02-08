@@ -36,16 +36,24 @@ const ListsScreen = props => {
             //if more than one row of data was selected
             if(len > 0){
               //loop through the rows of data
-              for ( let i = 0; i< len; i++){
+              for ( let i = 0; i< len; i++){                
                 //push a row of data at a time onto results array
                 let item = res.rows.item(i);
+                var colors = '';
+                if (item.priority == 'HIGH'){
+                  colors = 'red';
+                } else if (item.priority == 'LOW'){
+                  colors = 'green';
+                }
                 results.push({
                   id: item.id,
                   name: item.name,
                   store: item.store,
+                  priority: item.priority,
                   date: item.date,
+                  color: colors,
                 });
-              }
+              }              
               //assign results array to lists state variable
               setLists(results);
             }else{
