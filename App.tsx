@@ -17,6 +17,11 @@ const App: () => Node = () => {
   } catch (error){
     console.log('Failed to create lists table '+ error);
   }
+  try{
+    database.createItemsTable();
+  } catch (error){
+    console.log('Failed to create items table '+ error);
+  }
   return <Router />;
 };
 
