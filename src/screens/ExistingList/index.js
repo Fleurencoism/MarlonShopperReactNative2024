@@ -1,43 +1,59 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import styles from './styles';
 import { View, Text, TextInput, Pressable, Alert } from 'react-native';
 import { openDatabase } from "react-native-sqlite-storage";
+import SelectDropdown from 'react-native-select-dropdown';
+import DateTimePickerAndroid from '@react-native-community/datetimepicker';
 
-//create constant object that refers to database
 const shopperDB = openDatabase({name: 'Shopper.db'});
 
-//create constant that contains the of the lists table
 const listsTableName = 'lists';
 
 const ExistingListScreen = props => {
 
     const post = props.route.params.post;
+    
 
-    const [name,setName] =useState(post.name);
-    const [store,setStore] =useState(post.store);
-    const [priority,setPriority] =useState(post.priority);
-    const [date,setDate] =useState(post.date);
+    const [name, setName] = useState(post.name);
+    const [store, setStore] = useState(post.store);
+    const [date, setDate] = useState(new Date());
+    const [priority, setPriority] = useState(post.priority);
+    const [datePicker, setDatePicker] = useState(false);
+    const [selectedDate, setSelectedDate] = useState(post.date);
+
+    const priorityNames = ['HIGH', 'LOW'];
+
+    function showDatePicker() {
+        setDatePicker(true);
+    }
+
+    function onDateSelected(event, value) {
+        setDate(value);
+        setDatePicker(false);
+        setSelectedDate(value.toLocaleDateString());
+    }
 
     const onListUpdate = () => {
         if (!name){
-            alert('Please enter a shopping list name.')
-            return
+            alert('Please enter a shopping list name.');
+            return;
         }
         if (!store){
-            alert('Please enter a shopping list store.')
-            return
-        }if (!priority){
-            alert('Please enter a shopping list priority.')
-            return
+            alert('Please enter a shopping list store.');
+            return;
+        }
+        if (!priority){
+            alert('Please enter a shopping list priority.');
+            return;
         }
         if (!date){
-            alert('Please enter a shopping list date.')
-            return
+            alert('Please enter a shopping list date.');
+            return;
         }
 
         shopperDB.transaction(txn => {
             txn.executeSql(
-                `Update ${listsTableName} SET name = "${name}", store = "${store}", date = "${date}", priority = "${priority}" WHERE id = "${post.id}"`,
+                `UPDATE ${listsTableName} SET name = "${name}", store = "${store}", date = "${date.toLocaleDateString()}", priority = "${priority}" WHERE id = "${post.id}"`,
                 [],
                 () => {
                     console.log(`${name} updated successfully`);
@@ -49,33 +65,31 @@ const ExistingListScreen = props => {
         });
 
         alert(name + ' updated!');
+
     }
 
     const onListDelete = () => {
         return Alert.alert(
-            //title
             'Confirm',
-            //message
             'Are you sure you want to delete this list?',
-            //code for buttons
             [
                 {
-                  text: 'Yes',
-                  onPress: () => {
-                    shopperDB.transaction(txn => {
-                        txn.executeSql(
-                            `DELETE FROM ${listsTableName} WHERE id = ${post.id}`,
-                            [],
-                            () => {
-                                console.log(`${name} deleted successfully!`)
-                            },
-                            error => {
-                                console.log('Error on deleting list ' + error.message);
-                            }
-                        );
-                    });
-                    alert('List Deleted!');
-                  }, 
+                    text: 'Yes',
+                    onPress: () => {
+                        shopperDB.transaction(txn => {
+                            txn.executeSql(
+                                `DELETE FROM ${listsTableName} WHERE id = ${post.id}`,
+                                [],
+                                () => {
+                                    console.log(`${name} deleted successfully`);
+                                },
+                                error => {
+                                    console.log('Error on deleting list ' + error.message);
+                                }
+                            );
+                        });
+                        alert('List Deleted!');
+                    },
                 },
                 {
                     text: 'No',
@@ -95,33 +109,61 @@ const ExistingListScreen = props => {
   return (
     <View style={styles.container}>
         <View style={styles.topContainer}>
-            <TextInput
+            <TextInput 
                 value={name}
                 onChangeText={value => setName(value)}
                 style={styles.name}
                 placeholder={'Enter Name'}
                 placeholderTextColor={'grey'}
             />
-            <TextInput
+            <TextInput 
                 value={store}
                 onChangeText={value => setStore(value)}
                 style={styles.store}
                 placeholder={'Enter Store'}
                 placeholderTextColor={'grey'}
             />
-            <TextInput
-                value={priority}
-                onChangeText={value => setPriority(value)}
-                style={styles.priority}
-                placeholder={'Enter List Priority (HIGH or LOW)'}
-                placeholderTextColor={'grey'}
+            <SelectDropdown
+                data={priorityNames}
+                defaultValue={priority}
+                defaultButtonText={'Select Priority'}
+                onSelect={(selectedItem, index) => {
+                    setPriority(selectedItem);
+                }}
+                buttonTextAfterSelection={(selectedItem, index) => {
+                    return selectedItem;
+                }}
+                rowTextForSelection={(item, index) => {
+                    return item;
+                }}
+                buttonStyle={styles.dropdownBtnStyle}
+                buttonTextStyle={styles.dropdownBtnTxtStyle}
+                dropdownStyle={styles.dropdownDropdownStyle}
+                rowStyle={styles.dropdownRowStyle}
+                rowTextStyle={styles.dropdownRowTxtStyle}
             />
-            <TextInput
-                value={date}
-                onChangeText={value => setDate(value)}
+            {datePicker && (
+                <DateTimePickerAndroid
+                    value={date}
+                    mode={'date'}
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    is24Hour={true}
+                    onChange={onDateSelected}
+                    minimumDate={new Date(Date.now())}
+                />
+            )}
+            {!datePicker && (
+                <View>
+                    <Pressable onPress={showDatePicker} style={styles.dateButton}>
+                        <Text style={styles.dateButtonText}>Select A Date</Text>
+                    </Pressable>
+                </View>
+            )}
+            <TextInput 
+                value={selectedDate}
                 style={styles.date}
-                placeholder={'Enter Date in format YYYY-MM-DD'}
-                placeholderTextColor={'grey'}
+                placeholder={'Selected Date'}
+                editable={false}
             />
         </View>
         <View style={styles.bottomContainer}>
