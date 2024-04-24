@@ -109,6 +109,10 @@ const AddListScreen = props => {
             {!datePicker && (
                 <View>
                     <Pressable 
+                        accessible={true}
+                        accessibilityRole='button'
+                        accessibilityLabel='Doubel tap to open date picker'
+                        accessibilityHint='Opens date picker'
                         onPress={showDatePicker}
                         style={styles.dateButton}>
                             <Text style={styles.dateButtonText}>Select A Date</Text>
@@ -124,7 +128,13 @@ const AddListScreen = props => {
             />
         </View>
         <View style={styles.bottomContainer}>
-            <Pressable style={styles.button} onPress={onListAdd}>
+            <Pressable 
+                accessible={true}
+                accessibilityRole='button'
+                accessibilityLabel='Doubel tap to add list'
+                accessibilityHint='Adds a list'
+                style={styles.button} 
+                onPress={onListAdd}>
                 <Text style={styles.buttonText}>Add</Text>
             </Pressable>
         </View>

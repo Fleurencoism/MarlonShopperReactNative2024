@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
 import styles from './styles';
 import { View, Text, TextInput, Pressable, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+// import openDatabase hook
 import { openDatabase } from "react-native-sqlite-storage";
 import SelectDropdown from 'react-native-select-dropdown';
 import DateTimePickerAndroid from '@react-native-community/datetimepicker';
 
+// create constant object that refers to database
 const shopperDB = openDatabase({name: 'Shopper.db'});
 
+// create constant that contains the name of the lists table
 const listsTableName = 'lists';
 
 const ExistingListScreen = props => {
@@ -22,6 +26,8 @@ const ExistingListScreen = props => {
     const [selectedDate, setSelectedDate] = useState(post.date);
 
     const priorityNames = ['HIGH', 'LOW'];
+
+    const navigation = useNavigation();
 
     function showDatePicker() {
         setDatePicker(true);
@@ -70,8 +76,11 @@ const ExistingListScreen = props => {
 
     const onListDelete = () => {
         return Alert.alert(
+            // title
             'Confirm',
+            // message
             'Are you sure you want to delete this list?',
+            // code for buttons
             [
                 {
                     text: 'Yes',
@@ -99,10 +108,12 @@ const ExistingListScreen = props => {
     }
 
     const onAddItem = () => {
+        navigation.navigate('Add List Item', {post: post});
         
     }
 
     const onViewList = () => {
+        navigation.navigate('View List Items', {post: post});
         
     }
 
@@ -160,23 +171,47 @@ const ExistingListScreen = props => {
                 </View>
             )}
             <TextInput 
+                accessible={true}
+                accessibilityLabel={selectedDate}
                 value={selectedDate}
                 style={styles.date}
-                placeholder={'Selected Date'}
+                placeholder={"Selected Date"}
                 editable={false}
             />
         </View>
         <View style={styles.bottomContainer}>
-            <Pressable style={styles.updateButton} onPress={onListUpdate}>
+            <Pressable 
+                accessible={true}
+                accessibilityRole='button'
+                accessibilityLabel='Doubel tap to update list'                
+                style={styles.updateButton} 
+                onPress={onListUpdate}>
                 <Text style={styles.buttonText}>Update</Text>
             </Pressable>
-            <Pressable style={styles.deleteButton} onPress={onListDelete}>
+            <Pressable 
+                accessible={true}
+                accessibilityRole='button'
+                accessibilityLabel='Doubel tap to delete list'
+                style={styles.deleteButton} 
+                onPress={onListDelete}>
                 <Text style={styles.buttonText}>Delete</Text>
             </Pressable>
-            <Pressable style={styles.addButton} onPress={onAddItem}>
+            <Pressable 
+                accessible={true}
+                accessibilityRole='button'
+                accessibilityLabel='Doubel tap to add item to list'
+                accessibilityHint='opens add item screen'
+                style={styles.addButton} 
+                onPress={onAddItem}>
                 <Text style={styles.buttonText}>Add Item</Text>
             </Pressable>
-            <Pressable style={styles.viewButton} onPress={onViewList}>
+            <Pressable 
+                accessible={true}
+                accessibilityRole='button'
+                accessibilityLabel='Doubel tap to view items added to this list'
+                accessibilityHint='Opens view items screen'
+                style={styles.viewButton} 
+                onPress={onViewList}>
                 <Text style={styles.buttonText}>View Items</Text>
             </Pressable>
         </View>
